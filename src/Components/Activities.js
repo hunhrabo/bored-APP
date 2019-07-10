@@ -1,0 +1,161 @@
+import React, { useState, useEffect } from "react";
+import ActivityServices from "../Services/activities";
+
+const activityTypes = [
+  "education",
+  "recreational",
+  "social",
+  "diy",
+  "charity",
+  "cooking",
+  "relaxation",
+  "music",
+  "busywork"
+];
+
+const Activities = () => {
+  const [activity, setActivity] = useState({});
+
+  const [activityType, setActivityType] = useState(activity.activity || "");
+  const [participants, setParticipants] = useState(activity.participants || 1);
+  const [price, setPrice] = useState(activity.price || 0);
+
+  useEffect(() => {
+    // const randomTypeIndex = Math.floor(Math.random() * activityTypes.length);
+    // const initialType = activityTypes[randomTypeIndex];
+    // const initialParticipants = Math.floor(Math.random() * 10) + 1;
+    // const initialPrice = Math.floor(Math.random() * 2);
+    //   const {initialType, initialParticipants, initialPrice} = generateRandomDetails()
+
+    ActivityServices.getInitialActivity()
+      .then(response => response.json())
+      .then(response => {
+        console.log(response);
+        setActivity(response);
+        setActivityType(response.type);
+        setParticipants(response.participants);
+        setPrice(response.price);
+      });
+  }, []);
+
+  //   useEffect(() => {
+  //     ActivityServices.getRandomActivity(activityType, participants, price)
+  //       .then(response => response.json())
+  //       .then(response => {
+  //         console.log(response);
+  //         setActivity(response);
+  //       });
+  //   }, [activityType, participants, price]);
+
+  //   const generateRandomDetails = () => {
+  //       const randomTypeIndex = Math.floor(Math.random() * activityTypes.length);
+  //       const randomType = activityTypes[randomTypeIndex];
+  //       const randomParticipants = Math.floor(Math.random() * 10) + 1;
+  //       const randomPrice = Math.floor(Math.random() * 2);
+
+  //       return {
+  //           randomType, randomParticipants, randomPrice
+  //       }
+  //   }
+
+  const capitalizeType = type => {
+    if (typeof type !== "string") {
+      return "";
+    }
+
+    return type.charAt(0).toUpperCase() + type.slice(1);
+  };
+
+  // const handleTypeChange = e => {
+  //   console.log(e.target.name);
+  //   setActivityType(e.target.value);
+  // };
+
+  // const handleParticipantsChange = e => {
+  //   console.log(e.target.name);
+
+  //   setParticipants(e.target.value);
+  // };
+
+  // const handlePriceChange = e => {
+
+  //   const value = Number(e.target.value) / 100;
+  //   console.log(value);
+  //   setPrice(value);
+  // };
+
+  const handleSubmit = e => {
+    e.preventDefault();
+
+    console.log(e.target.value);
+    console.log(e.target.name);
+
+    ActivityServices.getRandomActivity(activityType, participants, price)
+      .then(response => response.json())
+      .then(response => {
+        console.log(response);
+        setActivity(response);
+      });
+  };
+
+  return (
+    <div>
+      <div className="tab activities-tab">Activities</div>
+      <div>
+        <p>You should:</p>
+        <div>{activity.activity}</div>
+        <button>Save for later</button>
+      </div>
+      <div>
+        <p>Activity details:</p>
+        <form>
+          <label>
+            Type
+            <select
+              name="type"
+              value={activityType}
+              onChange={e => {
+                setActivityType(e.target.value);
+                handleSubmit(e);
+              }}
+            >
+              {activityTypes.map(type => (
+                <option key={type} value={type}>
+                  {capitalizeType(type)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Participants
+            <input
+              name="participants"
+              type="number"
+              value={participants}
+              onChange={e => {
+                setParticipants(e.target.value);
+                handleSubmit(e);
+              }}
+            />
+          </label>
+          <label>
+            <input
+              name="price"
+              type="range"
+              min="0"
+              max="100"
+              value={(price * 100).toString()}
+              onChange={e => {
+                const value = Number(e.target.value) / 100;
+                setPrice(value);
+                handleSubmit(e);
+              }}
+            />
+          </label>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default Activities;
