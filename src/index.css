@@ -1,13 +1,75 @@
-body {
+/* Global styles 
+----------------*/
+
+html {
+  width: 100%;
+  height: 100%;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", "Oxygen", sans-serif;
+  font-weight: normal;
+  line-height: 1.4em;
+  font-size: 2em;
+  scroll-behavior: smooth;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
 }
+
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+a {
+  display: block;
+  text-decoration: none;
+  color: black;
+}
+
+li {
+  list-style: none;
+}
+/* 
+#root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.App {
+  display: table;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 10%;
+}
+
+.app-content {
+  display: table-cell;
+  margin: 0 auto;
+  max-width: 600px;
+  max-height: 600px;
+  vertical-align: middle;
+  text-align: center;
+  border: 1px solid black;
+}
+
+.tab-container.open .content-wrap {
+  display: block;
+}
+
+.tab-container.closed .content-wrap {
+  display: none;
+} */
