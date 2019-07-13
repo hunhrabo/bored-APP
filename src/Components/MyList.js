@@ -13,7 +13,7 @@ const MyList = ({
 
   const isActive = activeTab === "my-list" ? "open" : "closed";
 
-  console.log(savedActivities);
+  // console.log(savedActivities);
 
   return (
     <div className={`tab-container my-list-container ${isActive}`}>

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-// import ActivityServices from "../Services/activities";
+import React, { useEffect } from "react";
+import ActivityServices from "../Services/activities";
 
 const activityTypes = [
   "education",
@@ -13,14 +13,34 @@ const activityTypes = [
   "busywork"
 ];
 
-const Activities = ({ activeTab, activity, handleSave, handleSubmit }) => {
-  // const [currentActivity, setCurrentActivity] = useState({});
-
-  const [activityType, setActivityType] = useState(
-    activity.activity || "social"
-  );
-  const [participants, setParticipants] = useState(activity.participants || 1);
-  const [price, setPrice] = useState(activity.price || 0);
+const Activities = ({
+  activeTab,
+  activity,
+  setActivity,
+  type,
+  handleTypeChange,
+  participants,
+  handleParticipantsChange,
+  price,
+  handlePriceChange,
+  tempPrice,
+  handleTempPriceChange,
+  handleSave,
+  handleSubmit
+}) => {
+  useEffect(() => {
+    ActivityServices.getRandomActivity(type, participants, price).then(
+      response => {
+        if (response.error) {
+          setActivity(
+            "No activity found with these parameters. Try changing some of the parameters on the right panel."
+          );
+        } else {
+          setActivity(response.activity);
+        }
+      }
+    );
+  }, [setActivity, type, participants, price]);
 
   const capitalizeType = type => {
     if (typeof type !== "string") {
@@ -34,14 +54,11 @@ const Activities = ({ activeTab, activity, handleSave, handleSubmit }) => {
     return type.charAt(0).toUpperCase() + type.slice(1);
   };
 
-  // const errorMessage =
-  //   "No activities with these parameters. Try changing some of the parameters on the right panel.";
-
-  // const activityToDisplay = activity.activity
-  //   ? activity.activity
-  //   : errorMessage;
-
   const isActive = activeTab === "activities" ? "open" : "closed";
+
+  if (!activity) {
+    return null;
+  }
 
   return (
     <div className={`tab-container activities-container ${isActive}`}>
@@ -50,7 +67,7 @@ const Activities = ({ activeTab, activity, handleSave, handleSubmit }) => {
           <div className="details-container-left flex-container">
             <p>You should:</p>
 
-            <div className="activity-content">{activity.activity}</div>
+            <div className="activity-content">{activity}</div>
             <button className="save-btn" onClick={handleSave}>
               Save for later
             </button>
@@ -59,18 +76,15 @@ const Activities = ({ activeTab, activity, handleSave, handleSubmit }) => {
         <div className="activity-details flex-item flex-right">
           <form
             className="details-form details-container-right flex-container"
-            onSubmit={e => handleSubmit(e, activityType, participants, price)}
+            onSubmit={handleSubmit}
           >
             <p>Activity details:</p>
             <label htmlFor="type">Type</label>
             <select
               className="select-type"
               name="type"
-              value={activity.type}
-              onChange={e => {
-                setActivityType(e.target.value);
-                handleSubmit(e, e.target.value, participants, price);
-              }}
+              value={type}
+              onChange={handleTypeChange}
             >
               {activityTypes.map(type => (
                 <option key={type} value={type}>
@@ -84,11 +98,7 @@ const Activities = ({ activeTab, activity, handleSave, handleSubmit }) => {
               name="participants"
               type="number"
               value={participants}
-              onChange={e => {
-                console.log(e);
-                setParticipants(e.target.value);
-                handleSubmit(e, activityType, e.target.value, price);
-              }}
+              onChange={handleParticipantsChange}
             />
             <label htmlFor="price">Budget</label>
             <input
@@ -97,14 +107,9 @@ const Activities = ({ activeTab, activity, handleSave, handleSubmit }) => {
               type="range"
               min="0"
               max="100"
-              value={(price * 100).toString()}
-              onMouseUp={e => {
-                handleSubmit(e, activityType, participants, e.target.value);
-              }}
-              onChange={e => {
-                const value = Number(e.target.value) / 100;
-                setPrice(value);
-              }}
+              value={(tempPrice * 100).toString()}
+              onChange={handleTempPriceChange}
+              onMouseUp={handlePriceChange}
             />
             <p className="budget-lower-labels">
               <span>cheap</span>

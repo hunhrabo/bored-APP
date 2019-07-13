@@ -6,20 +6,31 @@ import Header from "./Components/Header";
 import Activities from "./Components/Activities";
 import MyList from "./Components/MyList";
 
+// this is going to contain our IndexedDB database
 let db;
 
 const App = () => {
-  const [currentActivity, setCurrentActivity] = useState({});
+  const [activity, setActivity] = useState("");
+  const [type, setType] = useState("");
+  const [participants, setParticipants] = useState(1);
+  const [price, setPrice] = useState(0);
+  const [tempPrice, setTempPrice] = useState(0);
   const [savedActivities, setSavedActivities] = useState([]);
   const [activeTab, setActiveTab] = useState("activities");
 
+  // fetch initial random activity
   useEffect(() => {
     ActivityServices.getInitialActivity().then(response => {
       console.log(response);
-      setCurrentActivity(response);
+      setActivity(response.activity);
+      setType(response.type);
+      setParticipants(response.participants);
+      setPrice(response.price);
+      setTempPrice(response.price);
     });
   }, []);
 
+  // create/open browser database
   useEffect(() => {
     let request = window.indexedDB.open("activities_db", 1);
 
@@ -28,32 +39,28 @@ const App = () => {
     };
 
     request.onsuccess = () => {
-      console.log("Database opened successfully");
-
       db = request.result;
-      console.log(db);
+
       let transaction = db.transaction("savedactivities");
 
       let objectStore = transaction.objectStore("savedactivities");
-      console.log(objectStore);
 
       let activitiesInDatabase = [];
 
       objectStore.openCursor().onsuccess = e => {
         const cursor = e.target.result;
-        console.log(cursor);
 
         if (cursor) {
           activitiesInDatabase.push(cursor.value);
 
           cursor.continue();
         } else {
-          console.log(activitiesInDatabase);
           setSavedActivities(activitiesInDatabase);
         }
       };
     };
 
+    // if database doesn't exist
     request.onupgradeneeded = e => {
       let db = e.target.result;
       console.log(e.target.result);
@@ -69,45 +76,50 @@ const App = () => {
         unique: false
       });
       objectStore.createIndex("price", "price", { unique: false });
-
-      console.log("database setup complete");
-      console.log(objectStore);
     };
-
-    // ActivityServices.getSavedActivities().then(response =>
-    //   setSavedActivities(response)
-    // );
   }, []);
 
-  const handleSubmit = (e, type, participants, price) => {
+  const handleTypeChange = e => {
+    setType(e.target.value);
+  };
+
+  const handleParticipantsChange = e => {
+    setParticipants(e.target.value);
+  };
+
+  const handlePriceChange = e => {
+    setPrice(Number(e.target.value) / 100);
+  };
+
+  const handleTempPriceChange = e => {
+    setTempPrice(Number(e.target.value) / 100);
+  };
+
+  const handleSubmit = e => {
     e.preventDefault();
-    console.log(e, type, participants, price);
+    console.log(type, participants, price);
 
     ActivityServices.getRandomActivity(type, participants, price).then(
       response => {
-        console.log(response);
-
         if (response.error) {
-          setCurrentActivity({
-            activity:
-              "No activities with these parameters. Try changing some of the parameters on the right panel."
-          });
+          setActivity(
+            "No activity found with these parameters. Try changing some of the parameters on the right panel."
+          );
         } else {
-          setCurrentActivity(response);
+          setActivity(response.activity);
         }
       }
     );
   };
 
   const handleSave = () => {
-    console.log("pushed save button");
     const getBudget = () => {
       switch (true) {
-        case currentActivity.price <= 0.3:
+        case price <= 0.3:
           return "cheap";
-        case currentActivity.price > 0.3 && currentActivity.price <= 0.7:
+        case price > 0.3 && price <= 0.7:
           return "mid-range";
-        case currentActivity.price > 0.7:
+        case price > 0.7:
           return "expensive";
         default:
           return "cheap";
@@ -118,9 +130,9 @@ const App = () => {
     const newId = uuidv1();
 
     const newActivity = {
-      activity: currentActivity.activity,
-      participants: currentActivity.participants,
-      budget: budget,
+      activity,
+      participants,
+      budget,
       id: newId
     };
     console.log(newActivity);
@@ -132,6 +144,7 @@ const App = () => {
         activity.budget === newActivity.budget
     );
 
+    // save new object in browser database
     if (!existingActivity) {
       console.log(db);
       let transaction = db.transaction(["savedactivities"], "readwrite");
@@ -152,21 +165,6 @@ const App = () => {
         console.log("transaction completed");
         setSavedActivities(savedActivities.concat(newActivity));
       };
-
-      // let request = window.indexedDB.open('activities_db', 1);
-
-      // request.onerror = () => {
-      //   console.log('Database failed to open')
-      // }
-
-      // request.onsuccess = () => {
-      //   console.log('Database opened successfully');
-      // }
-
-      // ActivityServices.saveActivity(newActivity).then(savedActivity =>
-      //   setSavedActivities(savedActivities.concat(savedActivity))
-      // );
-      // console.log("saved");
     }
   };
 
@@ -202,7 +200,16 @@ const App = () => {
         <Header handleTabSwitch={handleTabSwitch} />
         <Activities
           activeTab={activeTab}
-          activity={currentActivity}
+          activity={activity}
+          setActivity={setActivity}
+          type={type}
+          handleTypeChange={handleTypeChange}
+          participants={participants}
+          handleParticipantsChange={handleParticipantsChange}
+          price={price}
+          handlePriceChange={handlePriceChange}
+          tempPrice={tempPrice}
+          handleTempPriceChange={handleTempPriceChange}
           handleSave={handleSave}
           handleSubmit={handleSubmit}
         />
