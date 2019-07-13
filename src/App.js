@@ -79,6 +79,7 @@ const App = () => {
     };
   }, []);
 
+  // form handlers
   const handleTypeChange = e => {
     setType(e.target.value);
   };
@@ -168,6 +169,7 @@ const App = () => {
     }
   };
 
+  // database handlers
   const deleteActivity = id => {
     let transaction = db.transaction(["savedactivities"], "readwrite");
     let objectStore = transaction.objectStore("savedactivities");
@@ -190,14 +192,14 @@ const App = () => {
     setSavedActivities([]);
   };
 
-  const handleTabSwitch = value => {
-    setActiveTab(value);
+  const handleTabSwitch = id => {
+    setActiveTab(id);
   };
 
   return (
     <div className="App">
       <div className="app-content">
-        <Header handleTabSwitch={handleTabSwitch} />
+        <Header activeTab={activeTab} handleTabSwitch={handleTabSwitch} />
         <Activities
           activeTab={activeTab}
           activity={activity}

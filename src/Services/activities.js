@@ -37,16 +37,7 @@ const getRandomActivity = async (type, participants, budget) => {
 const saveActivity = async activityObject => {
   try {
     const response = await axios.post(dbURL, activityObject);
-    // const response = await fetch(dbURL, {
-    //   method: "POST",
-    //   mode: "cors",
-    //   cache: "no-cache",
-    //   credentials: "same-origin",
-    //   headers: {
-    //     "Content-Type": "application/json"
-    //   },
-    //   body: JSON.stringify(activityObject)
-    // });
+
     return response.data;
   } catch (err) {
     console.log(err);

@@ -2,23 +2,44 @@ import React from "react";
 
 const MyList = ({
   activeTab,
-
   savedActivities = [],
   deleteActivity,
   clearList
 }) => {
-  // if (typeof savedActivities === "undefined" || savedActivities.length === 0) {
-  //   return null;
-  // }
-
   const isActive = activeTab === "my-list" ? "open" : "closed";
 
-  // console.log(savedActivities);
+  if (savedActivities.length === 0) {
+    return (
+      <div className={`tab-container my-list-container ${isActive}`}>
+        <div className="content-wrap">
+          <table className="my-list-table">
+            <tbody>
+              <tr>
+                <th>#</th>
+                <th>Activity</th>
+                <th>Participants</th>
+                <th>Budget</th>
+                <th />
+              </tr>
+            </tbody>
+          </table>
+          <h2 className="no-saved-activities-msg">Nothing here...</h2>
+          <button
+            className="clear-list-btn"
+            disabled={true}
+            onClick={() => clearList()}
+          >
+            Clear all
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`tab-container my-list-container ${isActive}`}>
       <div className="content-wrap">
-        <table>
+        <table className="my-list-table">
           <tbody>
             <tr>
               <th>#</th>
@@ -35,8 +56,11 @@ const MyList = ({
                   <td>{activity.participants}</td>
                   <td>{activity.budget}</td>
                   <td>
-                    <button onClick={() => deleteActivity(activity.id)}>
-                      delete this one
+                    <button
+                      className="delete-activity-btn"
+                      onClick={() => deleteActivity(activity.id)}
+                    >
+                      <i class="far fa-check-circle fa-2x" />
                     </button>
                   </td>
                 </tr>
@@ -44,7 +68,14 @@ const MyList = ({
             })}
           </tbody>
         </table>
-        <button onClick={() => clearList()}>Clear list</button>
+
+        <button
+          className="clear-list-btn"
+          disabled={false}
+          onClick={() => clearList()}
+        >
+          Clear all
+        </button>
       </div>
     </div>
   );

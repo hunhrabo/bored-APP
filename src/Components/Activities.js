@@ -33,7 +33,7 @@ const Activities = ({
       response => {
         if (response.error) {
           setActivity(
-            "No activity found with these parameters. Try changing some of the parameters on the right panel."
+            "No activities found with these parameters. Try changing some of the parameters on the right panel."
           );
         } else {
           setActivity(response.activity);
