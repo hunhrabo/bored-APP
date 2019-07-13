@@ -1,16 +1,3 @@
 {
-  "activities": [
-    {
-      "activity": "Create a cookbook with your favorite recipes",
-      "participants": 1,
-      "budget": "cheap",
-      "id": "89074bd4-cf38-4475-8fd4-96ad3f41a661"
-    },
-    {
-      "activity": "Make bread from scratch",
-      "participants": 1,
-      "budget": "cheap",
-      "id": "7c4146b1-6c30-4a8e-a1b5-3df0b520f065"
-    }
-  ]
+  "activities": []
 }

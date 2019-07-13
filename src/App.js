@@ -6,6 +6,8 @@ import Header from "./Components/Header";
 import Activities from "./Components/Activities";
 import MyList from "./Components/MyList";
 
+let db;
+
 const App = () => {
   const [currentActivity, setCurrentActivity] = useState({});
   const [savedActivities, setSavedActivities] = useState([]);
@@ -19,18 +21,80 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    ActivityServices.getSavedActivities().then(response =>
-      setSavedActivities(response)
-    );
+    let request = window.indexedDB.open("activities_db", 1);
+
+    request.onerror = () => {
+      console.log("Database failed to open");
+    };
+
+    request.onsuccess = () => {
+      console.log("Database opened successfully");
+
+      db = request.result;
+      console.log(db);
+      let transaction = db.transaction("savedactivities");
+
+      let objectStore = transaction.objectStore("savedactivities");
+      console.log(objectStore);
+
+      let activitiesInDatabase = [];
+
+      objectStore.openCursor().onsuccess = e => {
+        const cursor = e.target.result;
+        console.log(cursor);
+
+        if (cursor) {
+          activitiesInDatabase.push(cursor.value);
+
+          cursor.continue();
+        } else {
+          console.log(activitiesInDatabase);
+          setSavedActivities(activitiesInDatabase);
+        }
+      };
+    };
+
+    request.onupgradeneeded = e => {
+      let db = e.target.result;
+      console.log(e.target.result);
+
+      let objectStore = db.createObjectStore("savedactivities", {
+        keyPath: "id",
+        autoIncrement: true
+      });
+
+      objectStore.createIndex("activity", "activity", { unique: true });
+      objectStore.createIndex("type", "type", { unique: false });
+      objectStore.createIndex("participants", "participants", {
+        unique: false
+      });
+      objectStore.createIndex("price", "price", { unique: false });
+
+      console.log("database setup complete");
+      console.log(objectStore);
+    };
+
+    // ActivityServices.getSavedActivities().then(response =>
+    //   setSavedActivities(response)
+    // );
   }, []);
 
   const handleSubmit = (e, type, participants, price) => {
     e.preventDefault();
+    console.log(e, type, participants, price);
 
     ActivityServices.getRandomActivity(type, participants, price).then(
       response => {
         console.log(response);
-        setCurrentActivity(response);
+
+        if (response.error) {
+          setCurrentActivity({
+            activity:
+              "No activities with these parameters. Try changing some of the parameters on the right panel."
+          });
+        } else {
+          setCurrentActivity(response);
+        }
       }
     );
   };
@@ -69,26 +133,61 @@ const App = () => {
     );
 
     if (!existingActivity) {
-      ActivityServices.saveActivity(newActivity).then(savedActivity =>
-        setSavedActivities(savedActivities.concat(savedActivity))
-      );
-      console.log("saved");
+      console.log(db);
+      let transaction = db.transaction(["savedactivities"], "readwrite");
+
+      let objectStore = transaction.objectStore("savedactivities");
+
+      let request = objectStore.add(newActivity);
+
+      request.onsuccess = () => {
+        console.log("successfully sent request");
+      };
+
+      transaction.onerror = () => {
+        console.log("transaction could not be made");
+      };
+
+      transaction.oncomplete = () => {
+        console.log("transaction completed");
+        setSavedActivities(savedActivities.concat(newActivity));
+      };
+
+      // let request = window.indexedDB.open('activities_db', 1);
+
+      // request.onerror = () => {
+      //   console.log('Database failed to open')
+      // }
+
+      // request.onsuccess = () => {
+      //   console.log('Database opened successfully');
+      // }
+
+      // ActivityServices.saveActivity(newActivity).then(savedActivity =>
+      //   setSavedActivities(savedActivities.concat(savedActivity))
+      // );
+      // console.log("saved");
     }
   };
 
   const deleteActivity = id => {
-    console.log(id);
-    ActivityServices.deleteActivity(id).then(() => {
+    let transaction = db.transaction(["savedactivities"], "readwrite");
+    let objectStore = transaction.objectStore("savedactivities");
+    objectStore.delete(id);
+
+    transaction.oncomplete = () => {
       setSavedActivities(
         savedActivities.filter(activity => activity.id !== id)
       );
-    });
+    };
   };
 
   const clearList = () => {
-    savedActivities.forEach(activity =>
-      ActivityServices.deleteActivity(activity.id)
-    );
+    savedActivities.forEach(activity => {
+      let transaction = db.transaction(["savedactivities"], "readwrite");
+      let objectStore = transaction.objectStore("savedactivities");
+      objectStore.delete(activity.id);
+    });
 
     setSavedActivities([]);
   };

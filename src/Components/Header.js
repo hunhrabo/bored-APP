@@ -2,7 +2,7 @@ import React from "react";
 
 const Header = ({ handleTabSwitch }) => {
   return (
-    <div className="tab-headers">
+    <header className="tab-headers">
       <div
         className="tab-header activities-tab-header"
         onClick={() => handleTabSwitch("activities")}
@@ -15,7 +15,7 @@ const Header = ({ handleTabSwitch }) => {
       >
         My list
       </div>
-    </div>
+    </header>
   );
 };
 

@@ -19,6 +19,7 @@ const getRandomActivity = async (type, participants, budget) => {
   }
 
   try {
+    budget = Number(budget);
     const minprice = budget - 0.1 >= 0 ? budget - 0.1 : 0;
     const maxprice = budget + 0.1 >= 1 ? budget + 0.1 : 1;
 
