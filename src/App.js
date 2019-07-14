@@ -13,9 +13,6 @@ const App = () => {
   const [activity, setActivity] = useState({});
   const [formData, setFormData] = useState({});
   const [oldData, setOldData] = useState({});
-  // const [type, setType] = useState("");
-  // const [participants, setParticipants] = useState(1);
-  // const [price, setPrice] = useState(0);
   const [tempPrice, setTempPrice] = useState(0);
   const [savedActivities, setSavedActivities] = useState([]);
   const [activeTab, setActiveTab] = useState("activities");
@@ -24,7 +21,6 @@ const App = () => {
   // fetch initial random activity
   useEffect(() => {
     ActivityServices.getInitialActivity().then(response => {
-      console.log(response);
       setActivity(response);
       setFormData({
         type: response.type,
@@ -37,18 +33,14 @@ const App = () => {
         price: response.price
       });
       setTempPrice(response.price);
-      // setActivity(response.activity);
-      // setType(response.type);
-      // setParticipants(response.participants);
-      // setPrice(response.price);
-      // setTempPrice(response.price);
     });
   }, []);
 
+  // if the user changed the value of any of the parameters, fetch new activity automatically
   useEffect(() => {
-    let dataCahanged = hasDataChanged();
+    let dataChanged = hasDataChanged();
 
-    if (dataCahanged) {
+    if (dataChanged) {
       ActivityServices.getRandomActivity(
         formData.type,
         formData.participants,
@@ -56,13 +48,11 @@ const App = () => {
       ).then(response => {
         if (response.error) {
           setOldData(formData);
-
           setActivity({
             error:
               "No activity found with these parameters. Try changing some of the parameters on the right panel."
           });
         } else {
-          console.log(response);
           setOldData(formData);
           setActivity(response);
         }
@@ -80,57 +70,6 @@ const App = () => {
     }
     return false;
   };
-
-  // useEffect(() => {
-  //   console.log(activity);
-  //   console.log(formData);
-  //   if (activity.activity && formData.type) {
-  //     if (
-  //       formData.type !== activity.type ||
-  //       formData.participants !== activity.participants ||
-  //       formData.price !== activity.price
-  //     ) {
-  //       console.log("need fetching...");
-  //       ActivityServices.getRandomActivity(
-  //         formData.type,
-  //         formData.participants,
-  //         formData.price
-  //       ).then(response => {
-  //         if (response.error) {
-  //           setActivity({
-  //             ...activity,
-  //             error:
-  //               "No activity found with these parameters. Try changing some of the parameters on the right panel."
-  //           });
-  //         } else {
-  //           console.log(response);
-  //           setActivity(response);
-  //         }
-  //       });
-  //     }
-  //   }
-  // });
-
-  // useEffect(() => {
-  //   if (activity.error) {
-  //     ActivityServices.getRandomActivity(
-  //       formData.type,
-  //       formData.participants,
-  //       formData.price
-  //     ).then(response => {
-  //       if (response.error) {
-  //         setActivity({
-  //           ...activity,
-  //           error:
-  //             "No activity found with these parameters. Try changing some of the parameters on the right panel."
-  //         });
-  //       } else {
-  //         console.log(response);
-  //         setActivity(response);
-  //       }
-  //     });
-  //   }
-  // });
 
   // create/open browser database
   useEffect(() => {
@@ -165,7 +104,6 @@ const App = () => {
     // if database doesn't exist
     request.onupgradeneeded = e => {
       let db = e.target.result;
-      console.log(e.target.result);
 
       let objectStore = db.createObjectStore("savedactivities", {
         keyPath: "id",
@@ -187,7 +125,6 @@ const App = () => {
       ...formData,
       type: e.target.value
     });
-    // setType(e.target.value);
   };
 
   const handleParticipantsChange = e => {
@@ -195,7 +132,6 @@ const App = () => {
       ...formData,
       participants: e.target.value
     });
-    // setParticipants(e.target.value);
   };
 
   const handlePriceChange = e => {
@@ -203,7 +139,6 @@ const App = () => {
       ...formData,
       price: Number(e.target.value) / 100
     });
-    // setPrice(Number(e.target.value) / 100);
   };
 
   const handleTempPriceChange = e => {
@@ -212,7 +147,6 @@ const App = () => {
 
   const handleSubmit = e => {
     e.preventDefault();
-    console.log(formData.type, formData.participants, formData.price);
 
     ActivityServices.getRandomActivity(
       formData.type,
@@ -221,19 +155,20 @@ const App = () => {
     ).then(response => {
       if (response.error) {
         setOldData(formData);
-
         setActivity({
           error:
             "No activity found with these parameters. Try changing some of the parameters on the right panel."
         });
       } else {
         setOldData(formData);
-
         setActivity(response);
       }
     });
   };
 
+  // database handlers
+
+  // save current activity to IndexedDB database
   const handleSave = () => {
     if (activity.activity) {
       const getBudget = () => {
@@ -258,7 +193,6 @@ const App = () => {
         budget,
         id: newId
       };
-      console.log(newActivity);
 
       const existingActivity = savedActivities.find(
         activity =>
@@ -267,9 +201,8 @@ const App = () => {
           activity.budget === newActivity.budget
       );
 
-      // save new object in browser database
+      // save only new activitites in browser database
       if (!existingActivity) {
-        console.log(db);
         let transaction = db.transaction(["savedactivities"], "readwrite");
 
         let objectStore = transaction.objectStore("savedactivities");
@@ -296,7 +229,6 @@ const App = () => {
     }
   };
 
-  // database handlers
   const deleteActivity = id => {
     let transaction = db.transaction(["savedactivities"], "readwrite");
     let objectStore = transaction.objectStore("savedactivities");
@@ -324,7 +256,11 @@ const App = () => {
   };
 
   if (!formData.type) {
-    return <div>Loading...</div>;
+    return (
+      <div className="loading-img-container">
+        <p className="loading-img">Loading...</p>
+      </div>
+    );
   }
 
   return (
@@ -341,16 +277,6 @@ const App = () => {
           handlePriceChange={handlePriceChange}
           tempPrice={tempPrice}
           handleTempPriceChange={handleTempPriceChange}
-          // activity={activity}
-          // setActivity={setActivity}
-          // type={type}
-          // handleTypeChange={handleTypeChange}
-          // participants={participants}
-          // handleParticipantsChange={handleParticipantsChange}
-          // price={price}
-          // handlePriceChange={handlePriceChange}
-          // tempPrice={tempPrice}
-          // handleTempPriceChange={handleTempPriceChange}
           handleSave={handleSave}
           handleSubmit={handleSubmit}
           notification={notification}

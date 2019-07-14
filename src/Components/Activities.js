@@ -1,5 +1,4 @@
-import React, { useEffect } from "react";
-import ActivityServices from "../Services/activities";
+import React from "react";
 
 const activityTypes = [
   "education",
@@ -27,37 +26,18 @@ const Activities = ({
   handleSubmit,
   notification
 }) => {
-  // useEffect(() => {
-  //   ActivityServices.getRandomActivity(type, participants, price).then(
-  //     response => {
-  //       if (response.error) {
-  //         setActivity(
-  //           "No activities found with these parameters. Try changing some of the parameters on the right panel."
-  //         );
-  //       } else {
-  //         setActivity(response.activity);
-  //       }
-  //     }
-  //   );
-  // }, [setActivity, type, participants, price]);
-
+  // transform first letter to uppercase in select box
   const capitalizeType = type => {
     if (typeof type !== "string") {
       return "";
     }
-
     if (type === "diy") {
       return "DIY";
     }
-
     return type.charAt(0).toUpperCase() + type.slice(1);
   };
 
   const isActive = activeTab === "activities" ? "open" : "closed";
-
-  // if (!activity) {
-  //   return null;
-  // }
 
   return (
     <div className={`tab-container activities-container ${isActive}`}>

@@ -12,7 +12,7 @@ html {
   font-family: "Rubik", "Oxygen", sans-serif;
   font-weight: normal;
   line-height: 1.2em;
-  font-size: 1.1em;
+  font-size: 1.3em;
   scroll-behavior: smooth;
 }
 
@@ -65,6 +65,23 @@ button {
   padding: 0;
 }
 
+/* Loading screen */
+.loading-img-container {
+  display: table;
+  width: 100vw;
+  height: 100vh;
+  text-align: center;
+}
+
+.loading-img {
+  display: table-cell;
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* App
+---------- */
+
 .app-content {
   position: relative;
   margin: auto;
@@ -83,10 +100,6 @@ button {
 }
 
 .tab-headers .tab-header.active {
-  /* border-top: 1px solid grey;
-  border-left: 1px solid grey;
-  border-right: 1px solid grey;
-  border-bottom: none; */
   color: black;
   background-color: white;
   border-top-left-radius: 5px;
@@ -103,18 +116,11 @@ button {
 
 .tab-headers .tab-header.inactive:hover {
   border-bottom: 2px solid rgb(240, 70, 80);
-  /* box-sizing: unset; */
 }
 
-/* .tab-container {
-  margin-top: 42px;
-} */
-
 /* Tab content */
-
 .tab-container.open {
-  width: 600px;
-  /* min-height: 325px; */
+  width: 800px;
   background-color: white;
   box-shadow: 2px 2px 5px rgba(120, 120, 120, 0.2);
   border-bottom-left-radius: 5px;
@@ -131,11 +137,10 @@ button {
 }
 
 .content-wrap {
-  min-height: 325px;
+  min-height: 425px;
 }
 
 /* Activities */
-
 .content-wrap.flex-container {
   height: 100%;
   display: flex;
@@ -169,13 +174,12 @@ button {
 .details-container-left .activity-content {
   position: relative;
   width: 100%;
-  height: 200px;
+  height: 300px;
   margin-bottom: 15px;
   padding: 10px;
   font-weight: bold;
   border: 1px solid grey;
   border-radius: 5px;
-  /* box-shadow: 1px 1px 5px rgba(120, 120, 120, 0.2); */
 }
 
 .activity-content .notification {
@@ -220,6 +224,10 @@ button {
   margin-bottom: 10px;
 }
 
+.details-container-right label {
+  margin-top: 10px;
+}
+
 .details-container-right label,
 .details-container-right span {
   font-size: 0.8em;
@@ -231,7 +239,6 @@ button {
   padding: 8px 5px;
   border: 1px solid grey;
   border-radius: 5px;
-  /* box-shadow: 1px 1px 5px rgba(120, 120, 120, 0.2); */
   font-size: 0.8em;
 }
 
@@ -241,7 +248,6 @@ button {
   padding: 8px 5px;
   border: 1px solid grey;
   border-radius: 5px;
-  /* box-shadow: 1px 1px 5px rgba(120, 120, 120, 0.2); */
   font-size: 0.8em;
 }
 
@@ -267,7 +273,6 @@ button {
   appearance: none;
   width: 15px;
   height: 15px;
-  /* border: 1px solid grey; */
   border-radius: 50%;
   background: rgb(240, 70, 80);
   cursor: pointer;
@@ -324,10 +329,6 @@ button {
   border-collapse: collapse;
   border-spacing: 0px;
 }
-
-/* .my-list-table tr {
-  min-height: 50px;
-} */
 
 .my-list-table th,
 .my-list-table td {

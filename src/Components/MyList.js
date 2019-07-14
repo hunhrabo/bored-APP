@@ -36,8 +36,7 @@ const MyList = ({
     );
   }
 
-  console.log(savedActivities);
-
+  // if there are saved activities
   return (
     <div className={`tab-container my-list-container ${isActive}`}>
       <div className="content-wrap">

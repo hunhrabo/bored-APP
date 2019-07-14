@@ -1,7 +1,6 @@
 import axios from "axios";
 
 const baseURL = "http://www.boredapi.com/api/activity";
-const dbURL = "http://localhost:5000/activities";
 
 const getInitialActivity = async () => {
   try {
@@ -35,42 +34,11 @@ const getRandomActivity = async (type, participants, budget) => {
     return response.data;
   } catch (err) {
     console.log(err);
-  }
-};
-
-const saveActivity = async activityObject => {
-  try {
-    const response = await axios.post(dbURL, activityObject);
-
-    return response.data;
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-const getSavedActivities = async () => {
-  try {
-    const response = await axios.get(dbURL);
-
-    return response.data;
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-const deleteActivity = async id => {
-  try {
-    await axios.delete(`${dbURL}/${id}`);
-    // return response.data;
-  } catch (err) {
-    console.log(err);
+    return null;
   }
 };
 
 export default {
   getInitialActivity,
-  getRandomActivity,
-  saveActivity,
-  getSavedActivities,
-  deleteActivity
+  getRandomActivity
 };
