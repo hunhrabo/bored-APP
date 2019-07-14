@@ -36,6 +36,8 @@ const MyList = ({
     );
   }
 
+  console.log(savedActivities);
+
   return (
     <div className={`tab-container my-list-container ${isActive}`}>
       <div className="content-wrap">
@@ -60,7 +62,7 @@ const MyList = ({
                       className="delete-activity-btn"
                       onClick={() => deleteActivity(activity.id)}
                     >
-                      <i class="far fa-check-circle fa-2x" />
+                      <i className="far fa-check-circle fa-2x" />
                     </button>
                   </td>
                 </tr>

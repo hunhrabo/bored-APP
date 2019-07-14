@@ -16,31 +16,30 @@ const activityTypes = [
 const Activities = ({
   activeTab,
   activity,
-  setActivity,
   type,
   handleTypeChange,
   participants,
   handleParticipantsChange,
-  price,
   handlePriceChange,
   tempPrice,
   handleTempPriceChange,
   handleSave,
-  handleSubmit
+  handleSubmit,
+  notification
 }) => {
-  useEffect(() => {
-    ActivityServices.getRandomActivity(type, participants, price).then(
-      response => {
-        if (response.error) {
-          setActivity(
-            "No activities found with these parameters. Try changing some of the parameters on the right panel."
-          );
-        } else {
-          setActivity(response.activity);
-        }
-      }
-    );
-  }, [setActivity, type, participants, price]);
+  // useEffect(() => {
+  //   ActivityServices.getRandomActivity(type, participants, price).then(
+  //     response => {
+  //       if (response.error) {
+  //         setActivity(
+  //           "No activities found with these parameters. Try changing some of the parameters on the right panel."
+  //         );
+  //       } else {
+  //         setActivity(response.activity);
+  //       }
+  //     }
+  //   );
+  // }, [setActivity, type, participants, price]);
 
   const capitalizeType = type => {
     if (typeof type !== "string") {
@@ -56,9 +55,9 @@ const Activities = ({
 
   const isActive = activeTab === "activities" ? "open" : "closed";
 
-  if (!activity) {
-    return null;
-  }
+  // if (!activity) {
+  //   return null;
+  // }
 
   return (
     <div className={`tab-container activities-container ${isActive}`}>
@@ -67,8 +66,15 @@ const Activities = ({
           <div className="details-container-left flex-container">
             <p>You should:</p>
 
-            <div className="activity-content">{activity}</div>
-            <button className="save-btn" onClick={handleSave}>
+            <div className="activity-content">
+              {activity.error || activity.activity}
+              <p className="notification">{notification}</p>
+            </div>
+            <button
+              className="save-btn"
+              disabled={!activity.activity}
+              onClick={handleSave}
+            >
               Save for later
             </button>
           </div>

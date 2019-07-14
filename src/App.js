@@ -10,25 +10,127 @@ import MyList from "./Components/MyList";
 let db;
 
 const App = () => {
-  const [activity, setActivity] = useState("");
-  const [type, setType] = useState("");
-  const [participants, setParticipants] = useState(1);
-  const [price, setPrice] = useState(0);
+  const [activity, setActivity] = useState({});
+  const [formData, setFormData] = useState({});
+  const [oldData, setOldData] = useState({});
+  // const [type, setType] = useState("");
+  // const [participants, setParticipants] = useState(1);
+  // const [price, setPrice] = useState(0);
   const [tempPrice, setTempPrice] = useState(0);
   const [savedActivities, setSavedActivities] = useState([]);
   const [activeTab, setActiveTab] = useState("activities");
+  const [notification, setNotification] = useState("");
 
   // fetch initial random activity
   useEffect(() => {
     ActivityServices.getInitialActivity().then(response => {
       console.log(response);
-      setActivity(response.activity);
-      setType(response.type);
-      setParticipants(response.participants);
-      setPrice(response.price);
+      setActivity(response);
+      setFormData({
+        type: response.type,
+        participants: response.participants,
+        price: response.price
+      });
+      setOldData({
+        type: response.type,
+        participants: response.participants,
+        price: response.price
+      });
       setTempPrice(response.price);
+      // setActivity(response.activity);
+      // setType(response.type);
+      // setParticipants(response.participants);
+      // setPrice(response.price);
+      // setTempPrice(response.price);
     });
   }, []);
+
+  useEffect(() => {
+    let dataCahanged = hasDataChanged();
+
+    if (dataCahanged) {
+      ActivityServices.getRandomActivity(
+        formData.type,
+        formData.participants,
+        formData.price
+      ).then(response => {
+        if (response.error) {
+          setOldData(formData);
+
+          setActivity({
+            error:
+              "No activity found with these parameters. Try changing some of the parameters on the right panel."
+          });
+        } else {
+          console.log(response);
+          setOldData(formData);
+          setActivity(response);
+        }
+      });
+    }
+  });
+
+  const hasDataChanged = () => {
+    if (
+      formData.type !== oldData.type ||
+      formData.participants !== oldData.participants ||
+      formData.price !== oldData.price
+    ) {
+      return true;
+    }
+    return false;
+  };
+
+  // useEffect(() => {
+  //   console.log(activity);
+  //   console.log(formData);
+  //   if (activity.activity && formData.type) {
+  //     if (
+  //       formData.type !== activity.type ||
+  //       formData.participants !== activity.participants ||
+  //       formData.price !== activity.price
+  //     ) {
+  //       console.log("need fetching...");
+  //       ActivityServices.getRandomActivity(
+  //         formData.type,
+  //         formData.participants,
+  //         formData.price
+  //       ).then(response => {
+  //         if (response.error) {
+  //           setActivity({
+  //             ...activity,
+  //             error:
+  //               "No activity found with these parameters. Try changing some of the parameters on the right panel."
+  //           });
+  //         } else {
+  //           console.log(response);
+  //           setActivity(response);
+  //         }
+  //       });
+  //     }
+  //   }
+  // });
+
+  // useEffect(() => {
+  //   if (activity.error) {
+  //     ActivityServices.getRandomActivity(
+  //       formData.type,
+  //       formData.participants,
+  //       formData.price
+  //     ).then(response => {
+  //       if (response.error) {
+  //         setActivity({
+  //           ...activity,
+  //           error:
+  //             "No activity found with these parameters. Try changing some of the parameters on the right panel."
+  //         });
+  //       } else {
+  //         console.log(response);
+  //         setActivity(response);
+  //       }
+  //     });
+  //   }
+  // });
 
   // create/open browser database
   useEffect(() => {
@@ -81,15 +183,27 @@ const App = () => {
 
   // form handlers
   const handleTypeChange = e => {
-    setType(e.target.value);
+    setFormData({
+      ...formData,
+      type: e.target.value
+    });
+    // setType(e.target.value);
   };
 
   const handleParticipantsChange = e => {
-    setParticipants(e.target.value);
+    setFormData({
+      ...formData,
+      participants: e.target.value
+    });
+    // setParticipants(e.target.value);
   };
 
   const handlePriceChange = e => {
-    setPrice(Number(e.target.value) / 100);
+    setFormData({
+      ...formData,
+      price: Number(e.target.value) / 100
+    });
+    // setPrice(Number(e.target.value) / 100);
   };
 
   const handleTempPriceChange = e => {
@@ -98,74 +212,87 @@ const App = () => {
 
   const handleSubmit = e => {
     e.preventDefault();
-    console.log(type, participants, price);
+    console.log(formData.type, formData.participants, formData.price);
 
-    ActivityServices.getRandomActivity(type, participants, price).then(
-      response => {
-        if (response.error) {
-          setActivity(
+    ActivityServices.getRandomActivity(
+      formData.type,
+      formData.participants,
+      formData.price
+    ).then(response => {
+      if (response.error) {
+        setOldData(formData);
+
+        setActivity({
+          error:
             "No activity found with these parameters. Try changing some of the parameters on the right panel."
-          );
-        } else {
-          setActivity(response.activity);
-        }
+        });
+      } else {
+        setOldData(formData);
+
+        setActivity(response);
       }
-    );
+    });
   };
 
   const handleSave = () => {
-    const getBudget = () => {
-      switch (true) {
-        case price <= 0.3:
-          return "cheap";
-        case price > 0.3 && price <= 0.7:
-          return "mid-range";
-        case price > 0.7:
-          return "expensive";
-        default:
-          return "cheap";
+    if (activity.activity) {
+      const getBudget = () => {
+        switch (true) {
+          case formData.price <= 0.3:
+            return "cheap";
+          case formData.price > 0.3 && formData.price <= 0.7:
+            return "mid-range";
+          case formData.price > 0.7:
+            return "expensive";
+          default:
+            return "cheap";
+        }
+      };
+
+      const budget = getBudget();
+      const newId = uuidv1();
+
+      const newActivity = {
+        activity: activity.activity,
+        participants: formData.participants,
+        budget,
+        id: newId
+      };
+      console.log(newActivity);
+
+      const existingActivity = savedActivities.find(
+        activity =>
+          activity.activity === newActivity.activity &&
+          activity.participants === newActivity.participants &&
+          activity.budget === newActivity.budget
+      );
+
+      // save new object in browser database
+      if (!existingActivity) {
+        console.log(db);
+        let transaction = db.transaction(["savedactivities"], "readwrite");
+
+        let objectStore = transaction.objectStore("savedactivities");
+
+        let request = objectStore.add(newActivity);
+
+        request.onsuccess = () => {
+          console.log("successfully sent request");
+        };
+
+        transaction.onerror = () => {
+          console.log("transaction could not be made");
+        };
+
+        transaction.oncomplete = () => {
+          console.log("transaction completed");
+          setSavedActivities(savedActivities.concat(newActivity));
+          setNotification("Activity saved");
+          setTimeout(() => {
+            setNotification("");
+          }, 1500);
+        };
       }
-    };
-
-    const budget = getBudget();
-    const newId = uuidv1();
-
-    const newActivity = {
-      activity,
-      participants,
-      budget,
-      id: newId
-    };
-    console.log(newActivity);
-
-    const existingActivity = savedActivities.find(
-      activity =>
-        activity.activity === newActivity.activity &&
-        activity.participants === newActivity.participants &&
-        activity.budget === newActivity.budget
-    );
-
-    // save new object in browser database
-    if (!existingActivity) {
-      console.log(db);
-      let transaction = db.transaction(["savedactivities"], "readwrite");
-
-      let objectStore = transaction.objectStore("savedactivities");
-
-      let request = objectStore.add(newActivity);
-
-      request.onsuccess = () => {
-        console.log("successfully sent request");
-      };
-
-      transaction.onerror = () => {
-        console.log("transaction could not be made");
-      };
-
-      transaction.oncomplete = () => {
-        console.log("transaction completed");
-        setSavedActivities(savedActivities.concat(newActivity));
-      };
     }
   };
 
@@ -196,6 +323,10 @@ const App = () => {
     setActiveTab(id);
   };
 
+  if (!formData.type) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="App">
       <div className="app-content">
@@ -203,17 +334,26 @@ const App = () => {
         <Activities
           activeTab={activeTab}
           activity={activity}
-          setActivity={setActivity}
-          type={type}
+          type={formData.type}
           handleTypeChange={handleTypeChange}
-          participants={participants}
+          participants={formData.participants}
           handleParticipantsChange={handleParticipantsChange}
-          price={price}
           handlePriceChange={handlePriceChange}
           tempPrice={tempPrice}
           handleTempPriceChange={handleTempPriceChange}
+          // activity={activity}
+          // setActivity={setActivity}
+          // type={type}
+          // handleTypeChange={handleTypeChange}
+          // participants={participants}
+          // handleParticipantsChange={handleParticipantsChange}
+          // price={price}
+          // handlePriceChange={handlePriceChange}
+          // tempPrice={tempPrice}
+          // handleTempPriceChange={handleTempPriceChange}
           handleSave={handleSave}
           handleSubmit={handleSubmit}
+          notification={notification}
         />
         <MyList
           activeTab={activeTab}
