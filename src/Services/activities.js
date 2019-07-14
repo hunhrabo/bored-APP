@@ -27,6 +27,7 @@ const getRandomActivity = async (type, participants, budget) => {
     //     1
     //   )}&maxprice=${maxprice.toFixed(1)}`
     // );
+    budget = Number(budget).toFixed(1);
     const response = await axios.get(
       `${baseURL}?type=${type}&participants=${participants}&price=${budget}`
     );
