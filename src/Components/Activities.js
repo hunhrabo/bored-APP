@@ -83,6 +83,8 @@ const Activities = ({
               className="input-participants"
               name="participants"
               type="number"
+              min={1}
+              max={10}
               value={participants}
               onChange={handleParticipantsChange}
             />
